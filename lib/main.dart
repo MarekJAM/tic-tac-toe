@@ -67,56 +67,74 @@ class _GameAreaState extends State<GameArea> {
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
-    return Table(
-      border: TableBorder(
-          verticalInside: BorderSide(width: 2),
-          horizontalInside: BorderSide(width: 2)),
+    return Stack(
       children: [
-        TableRow(
-          children: [
-            TableCell(
-              deviceSize: deviceSize,
-              field: Field.topL,
-            ),
-            TableCell(
-              deviceSize: deviceSize,
-              field: Field.topC,
-            ),
-            TableCell(
-              deviceSize: deviceSize,
-              field: Field.topR,
-            ),
-          ],
+        Selector<Game, List<int>>(
+          shouldRebuild: (previous, next) => previous != next,
+          selector: (_, game) => game.winningPos,
+          builder: (ctx, data, child) {
+            if (data != null) {
+              return CustomPaint(
+                painter: WinPainter(data),
+              );
+            } else {
+              return Container();
+            }
+          },
+          child: Container(),
         ),
-        TableRow(
+        Table(
+          border: TableBorder(
+              verticalInside: BorderSide(width: 2),
+              horizontalInside: BorderSide(width: 2)),
           children: [
-            TableCell(
-              deviceSize: deviceSize,
-              field: Field.midL,
+            TableRow(
+              children: [
+                TableCell(
+                  deviceSize: deviceSize,
+                  field: Field.topL,
+                ),
+                TableCell(
+                  deviceSize: deviceSize,
+                  field: Field.topC,
+                ),
+                TableCell(
+                  deviceSize: deviceSize,
+                  field: Field.topR,
+                ),
+              ],
             ),
-            TableCell(
-              deviceSize: deviceSize,
-              field: Field.midC,
+            TableRow(
+              children: [
+                TableCell(
+                  deviceSize: deviceSize,
+                  field: Field.midL,
+                ),
+                TableCell(
+                  deviceSize: deviceSize,
+                  field: Field.midC,
+                ),
+                TableCell(
+                  deviceSize: deviceSize,
+                  field: Field.midR,
+                ),
+              ],
             ),
-            TableCell(
-              deviceSize: deviceSize,
-              field: Field.midR,
-            ),
-          ],
-        ),
-        TableRow(
-          children: [
-            TableCell(
-              deviceSize: deviceSize,
-              field: Field.botL,
-            ),
-            TableCell(
-              deviceSize: deviceSize,
-              field: Field.botC,
-            ),
-            TableCell(
-              deviceSize: deviceSize,
-              field: Field.botR,
+            TableRow(
+              children: [
+                TableCell(
+                  deviceSize: deviceSize,
+                  field: Field.botL,
+                ),
+                TableCell(
+                  deviceSize: deviceSize,
+                  field: Field.botC,
+                ),
+                TableCell(
+                  deviceSize: deviceSize,
+                  field: Field.botR,
+                ),
+              ],
             ),
           ],
         ),
@@ -145,11 +163,10 @@ class _TableCellState extends State<TableCell> {
         width: widget.deviceSize.width / 3,
         child: Consumer<Game>(
           builder: (ctx, data, _) {
-            print(data.board['${widget.field}']);
             if (data.board[widget.field] != FieldStatus.empty &&
                 data.board[widget.field] != null) {
               return CustomPaint(
-                  painter: FaceOutlinePainter(data.board[widget.field]));
+                  painter: FieldPainter(data.board[widget.field]));
             } else {
               return Container();
             }
@@ -157,15 +174,14 @@ class _TableCellState extends State<TableCell> {
         ),
       ),
       onTap: () {
-        Provider.of<Game>(context, listen: false)
-            .updateField(widget.field);
+        Provider.of<Game>(context, listen: false).updateField(widget.field);
       },
     );
   }
 }
 
-class FaceOutlinePainter extends CustomPainter {
-  FaceOutlinePainter(this.fieldStatus);
+class FieldPainter extends CustomPainter {
+  FieldPainter(this.fieldStatus);
   final FieldStatus fieldStatus;
 
   @override
@@ -197,5 +213,29 @@ class FaceOutlinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(FaceOutlinePainter oldDelegate) => false;
+  bool shouldRepaint(FieldPainter oldDelegate) => false;
+}
+
+class WinPainter extends CustomPainter {
+  WinPainter(this.positions);
+  final List<int> positions;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Define a paint object
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0
+      ..color = Colors.blue;
+      print(positions);
+
+    canvas.drawLine(
+      Offset(size.width / 6 * positions[0], size.width / 6 * positions[1]),
+      Offset(size.width / 6 * positions[2], size.width / 6 * positions[3]),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(WinPainter oldDelegate) => false;
 }
