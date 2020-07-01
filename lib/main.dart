@@ -67,78 +67,82 @@ class _GameAreaState extends State<GameArea> {
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
-    return Stack(
-      children: [
-        Selector<Game, List<int>>(
-          shouldRebuild: (previous, next) => previous != next,
-          selector: (_, game) => game.winningPos,
-          builder: (ctx, data, child) {
-            if (data != null) {
-              return CustomPaint(
-                painter: WinPainter(data),
-              );
-            } else {
-              return Container();
-            }
-          },
-          child: Container(),
-        ),
-        Table(
-          border: TableBorder(
+    return Container(
+      child: Stack(
+        children: [
+          Table(
+            border: TableBorder(
               verticalInside: BorderSide(width: 2),
-              horizontalInside: BorderSide(width: 2)),
-          children: [
-            TableRow(
-              children: [
-                TableCell(
-                  deviceSize: deviceSize,
-                  field: Field.topL,
-                ),
-                TableCell(
-                  deviceSize: deviceSize,
-                  field: Field.topC,
-                ),
-                TableCell(
-                  deviceSize: deviceSize,
-                  field: Field.topR,
-                ),
-              ],
+              horizontalInside: BorderSide(width: 2),
             ),
-            TableRow(
-              children: [
-                TableCell(
-                  deviceSize: deviceSize,
-                  field: Field.midL,
-                ),
-                TableCell(
-                  deviceSize: deviceSize,
-                  field: Field.midC,
-                ),
-                TableCell(
-                  deviceSize: deviceSize,
-                  field: Field.midR,
-                ),
-              ],
+            children: [
+              TableRow(
+                children: [
+                  TableCell(
+                    deviceSize: deviceSize,
+                    field: Field.topL,
+                  ),
+                  TableCell(
+                    deviceSize: deviceSize,
+                    field: Field.topC,
+                  ),
+                  TableCell(
+                    deviceSize: deviceSize,
+                    field: Field.topR,
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  TableCell(
+                    deviceSize: deviceSize,
+                    field: Field.midL,
+                  ),
+                  TableCell(
+                    deviceSize: deviceSize,
+                    field: Field.midC,
+                  ),
+                  TableCell(
+                    deviceSize: deviceSize,
+                    field: Field.midR,
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  TableCell(
+                    deviceSize: deviceSize,
+                    field: Field.botL,
+                  ),
+                  TableCell(
+                    deviceSize: deviceSize,
+                    field: Field.botC,
+                  ),
+                  TableCell(
+                    deviceSize: deviceSize,
+                    field: Field.botR,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Positioned.fill(
+                      child: Selector<Game, List<int>>(
+              shouldRebuild: (previous, next) => previous != next,
+              selector: (_, game) => game.offsets,
+              builder: (ctx, data, child) {
+                if (data != null) {
+                  return CustomPaint(
+                    painter: WinPainter(data),
+                  );
+                } else {
+                  return Container();
+                }
+              },
             ),
-            TableRow(
-              children: [
-                TableCell(
-                  deviceSize: deviceSize,
-                  field: Field.botL,
-                ),
-                TableCell(
-                  deviceSize: deviceSize,
-                  field: Field.botC,
-                ),
-                TableCell(
-                  deviceSize: deviceSize,
-                  field: Field.botR,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -217,21 +221,21 @@ class FieldPainter extends CustomPainter {
 }
 
 class WinPainter extends CustomPainter {
-  WinPainter(this.positions);
-  final List<int> positions;
+  WinPainter(this.offsets);
+  final List<int> offsets;
 
   @override
   void paint(Canvas canvas, Size size) {
     // Define a paint object
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = Colors.blue;
-      print(positions);
+      ..strokeWidth = 8.0
+      ..color = Colors.black;
+    print(offsets);
 
     canvas.drawLine(
-      Offset(size.width / 6 * positions[0], size.width / 6 * positions[1]),
-      Offset(size.width / 6 * positions[2], size.width / 6 * positions[3]),
+      Offset(size.width / 6 * offsets[0], size.width / 6 * offsets[1]),
+      Offset(size.width / 6 * offsets[2], size.width / 6 * offsets[3]),
       paint,
     );
   }

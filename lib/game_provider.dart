@@ -20,7 +20,7 @@ class Game with ChangeNotifier {
   int moveCount = 0;
   Field recentlyUpdated;
   List<int>
-      winningPos; // contains winning coordinates of 2 fields (both ends) - ax, ay, bx, by, counted from 1 to 3 (e.g. 1,1 is top left), needed to count offset
+      offsets;
 
   Map<Field, FieldStatus> board = {
     Field.topL: FieldStatus.empty,
@@ -49,44 +49,53 @@ class Game with ChangeNotifier {
   void clearBoard() {
     board.updateAll((key, value) => FieldStatus.empty);
     moveCount = 0;
+    offsets = null;
     notifyListeners();
   }
 
   void checkWinner() {
     if (moveCount >= 5) {
       if (board[Field.topL] == board[Field.topC] &&
-          board[Field.topL] == board[Field.topR]) {
-            winningPos = [1,1,3,1];
-            notifyListeners();
+          board[Field.topL] == board[Field.topR] &&
+          board[Field.topL] != FieldStatus.empty) {
+        offsets = [0, 1, 6, 1];
+        notifyListeners();
       } else if (board[Field.midL] == board[Field.midC] &&
-          board[Field.midL] == board[Field.midR]) {
-            winningPos = [1,2,3,2];
-            notifyListeners();
+          board[Field.midL] == board[Field.midR] &&
+          board[Field.midL] != FieldStatus.empty) {
+        offsets = [0, 3, 6, 3];
+        notifyListeners();
       } else if (board[Field.botL] == board[Field.botC] &&
-          board[Field.botL] == board[Field.botR]) {
-            winningPos = [1,3,3,3];
-            notifyListeners();
+          board[Field.botL] == board[Field.botR] &&
+          board[Field.botL] != FieldStatus.empty) {
+        offsets = [0, 5, 6, 5];
+        notifyListeners();
       } else if (board[Field.topL] == board[Field.midL] &&
-          board[Field.topL] == board[Field.botL]) {
-            winningPos = [1,1,1,3];
-            notifyListeners();
+          board[Field.topL] == board[Field.botL] &&
+          board[Field.topL] != FieldStatus.empty) {
+        offsets = [1, 0, 1, 6];
+        notifyListeners();
       } else if (board[Field.topC] == board[Field.midC] &&
-          board[Field.topC] == board[Field.botC]) {
-            winningPos = [2,1,2,3];
-            notifyListeners();
+          board[Field.topC] == board[Field.botC] &&
+          board[Field.topC] != FieldStatus.empty) {
+        offsets = [3, 0, 3, 6];
+        notifyListeners();
       } else if (board[Field.topR] == board[Field.midR] &&
-          board[Field.topR] == board[Field.botR]) {
-            winningPos = [3,1,3,3];
-            notifyListeners();
+          board[Field.topR] == board[Field.botR] &&
+          board[Field.topR] != FieldStatus.empty) {
+        offsets = [5, 0, 5, 6];
+        notifyListeners();
       } else if (board[Field.topL] == board[Field.midC] &&
-          board[Field.topL] == board[Field.botR]) {
-            winningPos = [1,1,3,3];
-            notifyListeners();
+          board[Field.topL] == board[Field.botR] &&
+          board[Field.topL] != FieldStatus.empty) {
+        offsets = [0, 0, 6, 6];
+        notifyListeners();
       } else if (board[Field.botL] == board[Field.midC] &&
-          board[Field.botL] == board[Field.topR]) {
-            winningPos = [1,3,3,1];
-            notifyListeners();
-          }
+          board[Field.botL] == board[Field.topR] &&
+          board[Field.botL] != FieldStatus.empty) {
+        offsets = [0, 6, 6, 0];
+        notifyListeners();
+      }
       isPlayer1Winner = true;
     }
   }
