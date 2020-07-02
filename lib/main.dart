@@ -127,7 +127,7 @@ class _GameAreaState extends State<GameArea> {
             ],
           ),
           Positioned.fill(
-                      child: Selector<Game, List<int>>(
+            child: Selector<Game, List<int>>(
               shouldRebuild: (previous, next) => previous != next,
               selector: (_, game) => game.offsets,
               builder: (ctx, data, child) {
@@ -169,8 +169,12 @@ class _TableCellState extends State<TableCell> {
           builder: (ctx, data, _) {
             if (data.board[widget.field] != FieldStatus.empty &&
                 data.board[widget.field] != null) {
-              return CustomPaint(
-                  painter: FieldPainter(data.board[widget.field]));
+              return data.board[widget.field] == FieldStatus.circle
+                  ? Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Cross(),
+                  )
+                  : CustomPaint(painter: CirclePainter());
             } else {
               return Container();
             }
@@ -184,10 +188,76 @@ class _TableCellState extends State<TableCell> {
   }
 }
 
-class FieldPainter extends CustomPainter {
-  FieldPainter(this.fieldStatus);
-  final FieldStatus fieldStatus;
+class Cross extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => CrossState();
+}
+ 
+class CrossState extends State<Cross> with SingleTickerProviderStateMixin {
+  double _fraction = 0.0;
+  Animation<double> animation;
+ 
+  @override
+  void initState() {
+    super.initState();
+    var controller = AnimationController(
+        duration: Duration(milliseconds: 400), vsync: this);
+ 
+    animation = Tween(begin: 0.0, end: 1.0).animate(controller)
+      ..addListener(() {
+        setState(() {
+          _fraction = animation.value;
+        });
+      });
+ 
+    controller.forward();
+  }
+ 
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(painter: CrossPainter(_fraction));
+  }
+}
+ 
+class CrossPainter extends CustomPainter {
+  Paint _paint;
+  double _fraction;
+ 
+  CrossPainter(this._fraction) {
+    _paint = Paint()
+      ..color = Colors.blue
+      ..strokeWidth = 3.0
+      ..strokeCap = StrokeCap.round;
+  }
+ 
+  @override
+  void paint(Canvas canvas, Size size) {
+    double leftLineFraction, rightLineFraction;
+ 
+    if (_fraction < .5) {
+      leftLineFraction = _fraction / .5;
+      rightLineFraction = 0.0;
+    }else{
+      leftLineFraction = 1.0;
+      rightLineFraction = (_fraction - .5 ) /.5;
+    }
+ 
+    canvas.drawLine(Offset(0.0, 0.0),
+        Offset(size.width * leftLineFraction, size.height * leftLineFraction), _paint);
+ 
+    if (_fraction >= .5) {
+      canvas.drawLine(Offset(size.width, 0.0),
+              Offset(size.width - size.width * rightLineFraction, size.height * rightLineFraction), _paint);
+    }
+  }
+ 
+  @override
+  bool shouldRepaint(CrossPainter oldDelegate) {
+    return oldDelegate._fraction != _fraction;
+  }
+}
 
+class CirclePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // Define a paint object
@@ -196,28 +266,15 @@ class FieldPainter extends CustomPainter {
       ..strokeWidth = 3.0
       ..color = Colors.red;
 
-    if (fieldStatus == FieldStatus.circle) {
-      canvas.drawCircle(
-        Offset(size.width / 2, size.width / 2),
-        size.width * 0.4,
-        circlePaint,
-      );
-    } else {
-      canvas.drawLine(
-        Offset(size.width / 6, size.width / 6),
-        Offset(size.width * 5 / 6, size.width * 5 / 6),
-        circlePaint,
-      );
-      canvas.drawLine(
-        Offset(size.width / 6, size.width * 5 / 6),
-        Offset(size.width * 5 / 6, size.width / 6),
-        circlePaint,
-      );
-    }
+    canvas.drawCircle(
+      Offset(size.width / 2, size.width / 2),
+      size.width * 0.4,
+      circlePaint,
+    );
   }
 
   @override
-  bool shouldRepaint(FieldPainter oldDelegate) => false;
+  bool shouldRepaint(CirclePainter oldDelegate) => false;
 }
 
 class WinPainter extends CustomPainter {
@@ -231,7 +288,6 @@ class WinPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8.0
       ..color = Colors.black;
-    print(offsets);
 
     canvas.drawLine(
       Offset(size.width / 6 * offsets[0], size.width / 6 * offsets[1]),
