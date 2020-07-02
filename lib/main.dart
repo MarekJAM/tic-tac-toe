@@ -35,11 +35,12 @@ class MyApp extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
           children: [
-            RotatedBox(quarterTurns: 2, child: new Text("Player 2")),
+            RotatedBox(quarterTurns: 2, child: PlayerInfo('Player 2')),
             GameArea(),
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                PlayerInfo('Player 1'),
                 FlatButton.icon(
                   icon: Icon(Icons.refresh),
                   label: Text('Refresh'),
@@ -52,6 +53,22 @@ class MyApp extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class PlayerInfo extends StatelessWidget {
+  const PlayerInfo(this.player);
+  final String player;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(5),
+      child: Text(player),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.black, width: 2)),
     );
   }
 }
@@ -177,9 +194,9 @@ class _TableCellState extends State<TableCell> {
                       child: Cross(),
                     )
                   : Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Circle(),
-                  );
+                      padding: const EdgeInsets.all(20.0),
+                      child: Circle(),
+                    );
             } else {
               return Container();
             }
