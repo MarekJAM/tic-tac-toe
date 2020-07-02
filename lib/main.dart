@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -171,10 +173,13 @@ class _TableCellState extends State<TableCell> {
                 data.board[widget.field] != null) {
               return data.board[widget.field] == FieldStatus.circle
                   ? Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Cross(),
+                    )
+                  : Padding(
                     padding: const EdgeInsets.all(20.0),
-                    child: Cross(),
-                  )
-                  : CustomPaint(painter: CirclePainter());
+                    child: Circle(),
+                  );
             } else {
               return Container();
             }
@@ -192,89 +197,139 @@ class Cross extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => CrossState();
 }
- 
+
 class CrossState extends State<Cross> with SingleTickerProviderStateMixin {
   double _fraction = 0.0;
   Animation<double> animation;
- 
+
   @override
   void initState() {
     super.initState();
-    var controller = AnimationController(
-        duration: Duration(milliseconds: 400), vsync: this);
- 
+    var controller =
+        AnimationController(duration: Duration(milliseconds: 300), vsync: this);
+
     animation = Tween(begin: 0.0, end: 1.0).animate(controller)
       ..addListener(() {
         setState(() {
           _fraction = animation.value;
         });
       });
- 
+
     controller.forward();
   }
- 
+
   @override
   Widget build(BuildContext context) {
     return CustomPaint(painter: CrossPainter(_fraction));
   }
 }
- 
+
 class CrossPainter extends CustomPainter {
   Paint _paint;
   double _fraction;
- 
+
   CrossPainter(this._fraction) {
     _paint = Paint()
       ..color = Colors.blue
       ..strokeWidth = 3.0
       ..strokeCap = StrokeCap.round;
   }
- 
+
   @override
   void paint(Canvas canvas, Size size) {
     double leftLineFraction, rightLineFraction;
- 
+
     if (_fraction < .5) {
       leftLineFraction = _fraction / .5;
       rightLineFraction = 0.0;
-    }else{
+    } else {
       leftLineFraction = 1.0;
-      rightLineFraction = (_fraction - .5 ) /.5;
+      rightLineFraction = (_fraction - .5) / .5;
     }
- 
-    canvas.drawLine(Offset(0.0, 0.0),
-        Offset(size.width * leftLineFraction, size.height * leftLineFraction), _paint);
- 
+
+    canvas.drawLine(
+        Offset(0.0, 0.0),
+        Offset(size.width * leftLineFraction, size.height * leftLineFraction),
+        _paint);
+
     if (_fraction >= .5) {
-      canvas.drawLine(Offset(size.width, 0.0),
-              Offset(size.width - size.width * rightLineFraction, size.height * rightLineFraction), _paint);
+      canvas.drawLine(
+          Offset(size.width, 0.0),
+          Offset(size.width - size.width * rightLineFraction,
+              size.height * rightLineFraction),
+          _paint);
     }
   }
- 
+
   @override
   bool shouldRepaint(CrossPainter oldDelegate) {
     return oldDelegate._fraction != _fraction;
   }
 }
 
-class CirclePainter extends CustomPainter {
+class Circle extends StatefulWidget {
   @override
-  void paint(Canvas canvas, Size size) {
-    // Define a paint object
-    final circlePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..color = Colors.red;
+  _CircleState createState() => _CircleState();
+}
 
-    canvas.drawCircle(
-      Offset(size.width / 2, size.width / 2),
-      size.width * 0.4,
-      circlePaint,
+class _CircleState extends State<Circle> with SingleTickerProviderStateMixin {
+  double _fraction = 0.0;
+  Animation<double> _animation;
+  AnimationController _controller;
+  @override
+  void initState() {
+    super.initState();
+
+    _controller =
+        AnimationController(duration: Duration(milliseconds: 300), vsync: this);
+
+    _animation = Tween(begin: 0.0, end: 1.0).animate(_controller)
+      ..addListener(() {
+        setState(() {
+          _fraction = _animation.value;
+        });
+      });
+
+    _controller.forward();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: CirclePainter(fraction: _fraction),
     );
   }
 
   @override
-  bool shouldRepaint(CirclePainter oldDelegate) => false;
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+
+class CirclePainter extends CustomPainter {
+  final double fraction;
+  var _circlePaint;
+
+  CirclePainter({this.fraction}) {
+    _circlePaint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0
+      ..strokeCap = StrokeCap.round;
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    var rect = Offset(0.0, 0.0) & size;
+
+    canvas.drawArc(rect, -pi / 2, pi * 2 * fraction, false, _circlePaint);
+  }
+
+  @override
+  bool shouldRepaint(CirclePainter oldDelegate) {
+    return oldDelegate.fraction != fraction;
+  }
 }
 
 class WinPainter extends CustomPainter {
