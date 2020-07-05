@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
                 PlayerInfo('Player 1'),
                 FlatButton.icon(
                   icon: Icon(Icons.refresh),
-                  label: Text('Refresh'),
+                  label: Text('Restart'),
                   onPressed: () {
                     Provider.of<Game>(context, listen: false).clearBoard();
                   },
