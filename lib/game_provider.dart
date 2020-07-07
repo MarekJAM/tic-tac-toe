@@ -19,8 +19,8 @@ class Game with ChangeNotifier {
   bool isPlayer1Winner = false;
   int moveCount = 0;
   Field recentlyUpdated;
-  List<int>
-      offsets;
+  List<int> offsets;
+  Map<String, int> score = {"cross": 0, "circle": 0};
 
   Map<Field, FieldStatus> board = {
     Field.topL: FieldStatus.empty,
@@ -50,6 +50,7 @@ class Game with ChangeNotifier {
     board.updateAll((key, value) => FieldStatus.empty);
     moveCount = 0;
     offsets = null;
+    isCrossTurn = true;
     notifyListeners();
   }
 
@@ -59,44 +60,55 @@ class Game with ChangeNotifier {
           board[Field.topL] == board[Field.topR] &&
           board[Field.topL] != FieldStatus.empty) {
         offsets = [0, 1, 6, 1];
-        notifyListeners();
+        updateScore();
       } else if (board[Field.midL] == board[Field.midC] &&
           board[Field.midL] == board[Field.midR] &&
           board[Field.midL] != FieldStatus.empty) {
         offsets = [0, 3, 6, 3];
-        notifyListeners();
+        updateScore();
       } else if (board[Field.botL] == board[Field.botC] &&
           board[Field.botL] == board[Field.botR] &&
           board[Field.botL] != FieldStatus.empty) {
         offsets = [0, 5, 6, 5];
-        notifyListeners();
+        updateScore();
       } else if (board[Field.topL] == board[Field.midL] &&
           board[Field.topL] == board[Field.botL] &&
           board[Field.topL] != FieldStatus.empty) {
         offsets = [1, 0, 1, 6];
-        notifyListeners();
+        updateScore();
       } else if (board[Field.topC] == board[Field.midC] &&
           board[Field.topC] == board[Field.botC] &&
           board[Field.topC] != FieldStatus.empty) {
         offsets = [3, 0, 3, 6];
-        notifyListeners();
+        updateScore();
       } else if (board[Field.topR] == board[Field.midR] &&
           board[Field.topR] == board[Field.botR] &&
           board[Field.topR] != FieldStatus.empty) {
         offsets = [5, 0, 5, 6];
-        notifyListeners();
+        updateScore();
       } else if (board[Field.topL] == board[Field.midC] &&
           board[Field.topL] == board[Field.botR] &&
           board[Field.topL] != FieldStatus.empty) {
         offsets = [0, 0, 6, 6];
-        notifyListeners();
+        updateScore();
       } else if (board[Field.botL] == board[Field.midC] &&
           board[Field.botL] == board[Field.topR] &&
           board[Field.botL] != FieldStatus.empty) {
         offsets = [0, 6, 6, 0];
-        notifyListeners();
+        updateScore();
+        
       }
       isPlayer1Winner = true;
     }
+  }
+
+  void updateScore() {
+    if (board[recentlyUpdated] == FieldStatus.cross) {
+      score['cross']++;
+    } else {
+      score['circle']++;
+    }
+    print(score);
+    notifyListeners();
   }
 }

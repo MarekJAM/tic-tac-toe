@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-     SystemChrome.setEnabledSystemUIOverlays([]);
+    SystemChrome.setEnabledSystemUIOverlays([]);
     return MaterialApp(
       title: 'Tic Tac Toe',
       theme: ThemeData(
@@ -36,12 +36,12 @@ class MyApp extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
           children: [
-            RotatedBox(quarterTurns: 2, child: PlayerInfo('Player 2')),
+            RotatedBox(quarterTurns: 2, child: ScoreInfo('Player 2')),
             GameArea(),
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                PlayerInfo('Player 1'),
+                ScoreInfo('Player 1'),
                 FlatButton.icon(
                   icon: Icon(Icons.refresh),
                   label: Text('Restart'),
@@ -58,18 +58,26 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class PlayerInfo extends StatelessWidget {
-  const PlayerInfo(this.player);
+class ScoreInfo extends StatelessWidget {
+  const ScoreInfo(this.player);
   final String player;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(5),
-      child: Text(player),
+      child: 
+      Selector<Game, Map<String,int>>(
+              shouldRebuild: (_, __) => true,
+              selector: (_, game) => game.score,
+              builder: (ctx, score, child) {
+                return Text('x ${score['cross']} : ${score['circle']} o');
+              },
+            ),      
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.black, width: 2)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.black, width: 2),
+      ),
     );
   }
 }
@@ -192,11 +200,11 @@ class _TableCellState extends State<TableCell> {
               return data.board[widget.field] == FieldStatus.circle
                   ? Padding(
                       padding: const EdgeInsets.all(20.0),
-                      child: Cross(),
+                      child: Circle(),
                     )
                   : Padding(
                       padding: const EdgeInsets.all(20.0),
-                      child: Circle(),
+                      child: Cross(),
                     );
             } else {
               return Container();
