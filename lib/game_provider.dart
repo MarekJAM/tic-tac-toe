@@ -96,7 +96,6 @@ class Game with ChangeNotifier {
           board[Field.botL] != FieldStatus.empty) {
         offsets = [0, 6, 6, 0];
         updateScore();
-        
       }
       isPlayer1Winner = true;
     }
@@ -109,6 +108,12 @@ class Game with ChangeNotifier {
       score['circle']++;
     }
     print(score);
+    notifyListeners();
+  }
+
+  void resetScore() {
+    score['cross'] = 0;
+    score['circle'] = 0;
     notifyListeners();
   }
 }

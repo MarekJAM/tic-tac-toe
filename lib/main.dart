@@ -38,9 +38,9 @@ class MyApp extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.max,
               children: [
-                RotatedBox(quarterTurns: 2, child: ScoreInfo('Player 2')),
+                RotatedBox(quarterTurns: 2, child: ScoreInfo()),
                 GameArea(),
-                ScoreInfo('Player 1'),
+                ScoreInfo(),
               ],
             ),
             Positioned(
@@ -54,6 +54,17 @@ class MyApp extends StatelessWidget {
                 },
               ),
             ),
+            Positioned(
+              right: 5,
+              bottom: 5,
+              child: FlatButton.icon(
+                icon: Icon(Icons.settings_backup_restore),
+                label: Text('Reset score'),
+                onPressed: () {
+                  Provider.of<Game>(context, listen: false).resetScore();
+                },
+              ),
+            )
           ],
         ),
       ),
@@ -62,31 +73,54 @@ class MyApp extends StatelessWidget {
 }
 
 class ScoreInfo extends StatelessWidget {
-  const ScoreInfo(this.player);
-  final String player;
-
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(15),
-      child: Selector<Game, Map<String, int>>(
-        shouldRebuild: (_, __) => true,
-        selector: (_, game) => game.score,
-        builder: (ctx, score, child) {
-          return RichText(
-            text: TextSpan(
-              style: new TextStyle(
-                fontSize: 14.0,
-                color: Colors.black,
-              ),
-              children: [
-                TextSpan(text: 'x ', style: TextStyle(color: Colors.blue)),
-                TextSpan(text: '${score['cross']} : ${score['circle']}'),
-                TextSpan(text: ' o ', style: TextStyle(color: Colors.red)),
-              ],
-            ),
-          );
-        },
+      child: Column(
+        children: [
+          Selector<Game, bool>(
+            shouldRebuild: (_, __) => true,
+            selector: (_, game) => game.isCrossTurn,
+            builder: (ctx, isCrossTurn, child) {
+              return RichText(
+                text: TextSpan(
+                  style: new TextStyle(
+                    fontSize: 14.0,
+                    color: Colors.black,
+                  ),
+                  children: [
+                    TextSpan(text: 'Turn: '),
+                    isCrossTurn
+                        ? TextSpan(
+                            text: 'x', style: TextStyle(color: Colors.blue))
+                        : TextSpan(
+                            text: 'o', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              );
+            },
+          ),
+          Selector<Game, Map<String, int>>(
+            shouldRebuild: (_, __) => true,
+            selector: (_, game) => game.score,
+            builder: (ctx, score, child) {
+              return RichText(
+                text: TextSpan(
+                  style: new TextStyle(
+                    fontSize: 14.0,
+                    color: Colors.black,
+                  ),
+                  children: [
+                    TextSpan(text: 'x ', style: TextStyle(color: Colors.blue)),
+                    TextSpan(text: '${score['cross']} : ${score['circle']}'),
+                    TextSpan(text: ' o ', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
