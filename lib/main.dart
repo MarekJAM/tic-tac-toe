@@ -31,26 +31,29 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Scaffold(
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
+        body: Stack(
           children: [
-            RotatedBox(quarterTurns: 2, child: ScoreInfo('Player 2')),
-            GameArea(),
             Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
               children: [
+                RotatedBox(quarterTurns: 2, child: ScoreInfo('Player 2')),
+                GameArea(),
                 ScoreInfo('Player 1'),
-                FlatButton.icon(
-                  icon: Icon(Icons.refresh),
-                  label: Text('Restart'),
-                  onPressed: () {
-                    Provider.of<Game>(context, listen: false).clearBoard();
-                  },
-                ),
               ],
-            )
+            ),
+            Positioned(
+              bottom: 5,
+              left: 5,
+              child: FlatButton.icon(
+                icon: Icon(Icons.refresh),
+                label: Text('Restart'),
+                onPressed: () {
+                  Provider.of<Game>(context, listen: false).clearBoard();
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -65,15 +68,26 @@ class ScoreInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(5),
-      child: 
-      Selector<Game, Map<String,int>>(
-              shouldRebuild: (_, __) => true,
-              selector: (_, game) => game.score,
-              builder: (ctx, score, child) {
-                return Text('x ${score['cross']} : ${score['circle']} o');
-              },
-            ),      
+      padding: EdgeInsets.all(15),
+      child: Selector<Game, Map<String, int>>(
+        shouldRebuild: (_, __) => true,
+        selector: (_, game) => game.score,
+        builder: (ctx, score, child) {
+          return RichText(
+            text: TextSpan(
+              style: new TextStyle(
+                fontSize: 14.0,
+                color: Colors.black,
+              ),
+              children: [
+                TextSpan(text: 'x ', style: TextStyle(color: Colors.blue)),
+                TextSpan(text: '${score['cross']} : ${score['circle']}'),
+                TextSpan(text: ' o ', style: TextStyle(color: Colors.red)),
+              ],
+            ),
+          );
+        },
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.black, width: 2),
